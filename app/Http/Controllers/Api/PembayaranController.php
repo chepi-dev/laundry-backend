@@ -37,7 +37,7 @@ class PembayaranController extends Controller
 
     public function adminShow($orderId)
     {
-        $order = Order::with('pembayaran')->find($orderId);
+        $order = Order::with(['pembayaran', 'user'])->find($orderId);
 
         if (!$order) {
             return response()->json([
@@ -51,8 +51,24 @@ class PembayaranController extends Controller
             ], 404);
         }
 
+        $customer = [
+            'id' => $order->user?->id,
+            'name' => $order->user?->name,
+            'email' => $order->user?->email,
+            'no_hp' => $order->user?->no_hp,
+            'alamat' => $order->user?->alamat,
+        ];
+
+        $pembayaran = $order->pembayaran->toArray();
+        $pembayaran['customer'] = $customer;
+        $pembayaran['customer_name'] = $customer['name'];
+        $pembayaran['customer_no_hp'] = $customer['no_hp'];
+        $pembayaran['nama_pelanggan'] = $customer['name'];
+        $pembayaran['no_hp'] = $customer['no_hp'];
+        $pembayaran['order'] = $order->toArray();
+
         return response()->json([
-            'data' => $order->pembayaran
+            'data' => $pembayaran
         ], 200);
     }
 

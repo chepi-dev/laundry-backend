@@ -12,7 +12,8 @@ class AdminOrderController extends Controller
     {
         $orders = Order::with(['user', 'details.layanan', 'pembayaran'])
             ->latest()
-            ->get();
+            ->get()
+            ->map(fn (Order $order) => $this->formatOrder($order));
 
         return response()->json([
             'message' => 'Semua data order berhasil diambil',
@@ -32,7 +33,7 @@ class AdminOrderController extends Controller
 
         return response()->json([
             'message' => 'Detail order berhasil diambil',
-            'data' => $order
+            'data' => $this->formatOrder($order)
         ], 200);
     }
 
@@ -56,7 +57,37 @@ class AdminOrderController extends Controller
 
         return response()->json([
             'message' => 'Status order berhasil diupdate',
-            'data' => $order->load(['user', 'details.layanan', 'pembayaran'])
+            'data' => $this->formatOrder($order->load(['user', 'details.layanan', 'pembayaran']))
         ], 200);
+    }
+
+    private function formatOrder(Order $order): array
+    {
+        $data = $order->toArray();
+        $customerName = $order->user?->name;
+        $customerNoHp = $order->user?->no_hp;
+        $customer = [
+            'id' => $order->user?->id,
+            'name' => $customerName,
+            'email' => $order->user?->email,
+            'no_hp' => $customerNoHp,
+            'alamat' => $order->user?->alamat,
+        ];
+
+        $data['customer'] = $customer;
+        $data['customer_name'] = $customerName;
+        $data['customer_no_hp'] = $customerNoHp;
+        $data['nama_pelanggan'] = $customerName;
+        $data['no_hp'] = $customerNoHp;
+
+        if ($order->pembayaran) {
+            $data['pembayaran']['customer'] = $customer;
+            $data['pembayaran']['customer_name'] = $customerName;
+            $data['pembayaran']['customer_no_hp'] = $customerNoHp;
+            $data['pembayaran']['nama_pelanggan'] = $customerName;
+            $data['pembayaran']['no_hp'] = $customerNoHp;
+        }
+
+        return $data;
     }
 }
