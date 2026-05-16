@@ -38,6 +38,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
 
 // Admin Orders
     Route::get('/admin/orders', [AdminOrderController::class, 'index']);
+    Route::post('/admin/walk-in-orders', [OrderController::class, 'storeWalkIn']);
     Route::get('/admin/orders/{id}', [AdminOrderController::class, 'show']);
     Route::patch('/admin/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
 
