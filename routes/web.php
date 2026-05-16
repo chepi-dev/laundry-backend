@@ -19,6 +19,8 @@ Route::get('/clear-cache-hosting/{token}', function ($token) {
     Artisan::call('cache:clear');
     Artisan::call('optimize:clear');
 
+    Artisan::call('storage:link');
+
     return response()->json([
         'status' => true,
         'message' => 'Berhasil clear cache hosting.'
